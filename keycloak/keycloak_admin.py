@@ -42,13 +42,12 @@ from .urls_patterns import URL_ADMIN_SERVER_INFO, URL_ADMIN_CLIENT_AUTHZ_RESOURC
     URL_ADMIN_GROUP_MEMBERS, URL_ADMIN_USER_STORAGE, URL_ADMIN_GROUP_PERMISSIONS, URL_ADMIN_IDPS, \
     URL_ADMIN_USER_CLIENT_ROLES_AVAILABLE, URL_ADMIN_USERS, URL_ADMIN_CLIENT_SCOPES, \
     URL_ADMIN_CLIENT_SCOPES_ADD_MAPPER, URL_ADMIN_CLIENT_SCOPE, URL_ADMIN_CLIENT_SECRETS, \
-    URL_ADMIN_USER_REALM_ROLES, URL_ADMIN_REALM, URL_ADMIN_COMPONENTS, URL_ADMIN_COMPONENT, URL_ADMIN_KEYS 
+    URL_ADMIN_USER_REALM_ROLES, URL_ADMIN_REALM, URL_ADMIN_COMPONENTS, URL_ADMIN_COMPONENT, URL_ADMIN_KEYS
 
 
 class KeycloakAdmin:
-
     PAGE_SIZE = 100
-    
+
     _server_url = None
     _username = None
     _password = None
@@ -62,7 +61,8 @@ class KeycloakAdmin:
     _custom_headers = None
     _user_realm_name = None
 
-    def __init__(self, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True,
+    def __init__(self, server_url, username=None, password=None, realm_name='master', client_id='admin-cli',
+                 verify=True,
                  client_secret_key=None, custom_headers=None, user_realm_name=None, auto_refresh_token=None):
         """
 
@@ -189,10 +189,10 @@ class KeycloakAdmin:
         if not isinstance(value, Iterable):
             raise TypeError('Expected a list of strings among {allowed}'.format(allowed=allowed_methods))
         if not all(method in allowed_methods for method in value):
-            raise TypeError('Unexpected method in auto_refresh_token, accepted methods are {allowed}'.format(allowed=allowed_methods))
+            raise TypeError('Unexpected method in auto_refresh_token, accepted methods are {allowed}'.format(
+                allowed=allowed_methods))
 
         self._auto_refresh_token = value
-
 
     def __fetch_all(self, url, query=None):
         '''Wrapper function to paginate GET requests
@@ -212,7 +212,7 @@ class KeycloakAdmin:
 
         # fetch until we can
         while True:
-            query['first'] = page*self.PAGE_SIZE
+            query['first'] = page * self.PAGE_SIZE
             partial_results = raise_error_from_response(
                 self.raw_get(url, **query),
                 KeycloakGetError)
@@ -303,7 +303,7 @@ class KeycloakAdmin:
         :param query: Query parameters (optional)
         :return: users list
         """
-        params_path = {"realm-name": self.realm_name}
+        params_path = {"realm-name": self.user_realm_name}
         return self.__fetch_all(URL_ADMIN_USERS.format(**params_path), query)
 
     def get_idps(self):
@@ -467,7 +467,7 @@ class KeycloakAdmin:
 
         :return:
         """
-        params_path = {"realm-name": self.realm_name, "id": user_id}
+        params_path = {"realm-name": self.user_realm_name, "id": user_id}
         params_query = {"client_id": client_id, "lifespan": lifespan, "redirect_uri": redirect_uri}
         data_raw = self.raw_put(URL_ADMIN_SEND_UPDATE_ACCOUNT.format(**params_path),
                                 data=payload, **params_query)
@@ -805,7 +805,7 @@ class KeycloakAdmin:
         """
         params_path = {"realm-name": self.realm_name, "id": client_id}
         data_raw = self.raw_put(URL_ADMIN_CLIENT.format(**params_path),
-                                           data=json.dumps(payload))
+                                data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_code=204)
 
     def delete_client(self, client_id):
@@ -947,7 +947,7 @@ class KeycloakAdmin:
 
         params_path = {"realm-name": self.realm_name}
         data_raw = self.raw_post(URL_ADMIN_REALM_ROLES.format(**params_path),
-                                            data=json.dumps(payload))
+                                 data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_code=201, skip_exists=skip_exists)
 
     def update_realm_role(self, role_name, payload):
@@ -960,7 +960,7 @@ class KeycloakAdmin:
 
         params_path = {"realm-name": self.realm_name, "role-name": role_name}
         data_raw = self.connection.raw_put(URL_ADMIN_REALM_ROLES_ROLE_BY_NAME.format(**params_path),
-                                            data=json.dumps(payload))
+                                           data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_code=204)
 
     def delete_realm_role(self, role_name):
@@ -1018,7 +1018,7 @@ class KeycloakAdmin:
         payload = roles if isinstance(roles, list) else [roles]
         params_path = {"realm-name": self.realm_name, "id": group_id}
         data_raw = self.raw_delete(URL_ADMIN_GROUPS_REALM_ROLES.format(**params_path),
-                                 data=json.dumps(payload))
+                                   data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_code=204)
 
     def get_group_realm_roles(self, group_id):
@@ -1368,25 +1368,25 @@ class KeycloakAdmin:
 
     def get_token(self):
         self.keycloak_openid = KeycloakOpenID(server_url=self.server_url, client_id=self.client_id,
-                                              realm_name=self.user_realm_name or self.realm_name, verify=self.verify,
+                                              realm_name=self.realm_name, verify=self.verify,
                                               client_secret_key=self.client_secret_key,
                                               custom_headers=self.custom_headers)
 
         grant_type = ["password"]
         if self.client_secret_key:
             grant_type = ["client_credentials"]
-            
-        self._token = self.keycloak_openid.token(self.username, self.password, grant_type=grant_type)
+
+        self.token = self.keycloak_openid.token(self.username, self.password, grant_type=grant_type)
 
         headers = {
-            'Authorization': 'Bearer ' + self.token.get('access_token'),
+            'Authorization': 'Bearer ' + self._token.get('access_token'),
             'Content-Type': 'application/json'
         }
-        
+
         if self.custom_headers is not None:
             # merge custom headers to main headers
             headers.update(self.custom_headers)
-            
+
         self._connection = ConnectionManager(base_url=self.server_url,
                                              headers=headers,
                                              timeout=60,
