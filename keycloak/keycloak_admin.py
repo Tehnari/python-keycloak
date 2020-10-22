@@ -28,7 +28,7 @@ import json
 from builtins import isinstance
 from typing import List, Iterable
 
-from keycloak.urls_patterns import URL_ADMIN_GROUPS_REALM_ROLES, \
+from .urls_patterns import URL_ADMIN_GROUPS_REALM_ROLES, \
     URL_ADMIN_GET_GROUPS_REALM_ROLES, URL_ADMIN_REALM_ROLES_ROLE_BY_NAME, URL_ADMIN_GROUPS_CLIENT_ROLES
 from .connection import ConnectionManager
 from .exceptions import raise_error_from_response, KeycloakGetError
