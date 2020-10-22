@@ -603,7 +603,6 @@ class KeycloakAdmin:
 
         :return: array GroupRepresentation
         """
-<<<<<<< HEAD
         query = query or {}
         params_path = {"realm-name": self.realm_name}
         url = URL_ADMIN_USERS.format(**params_path)
@@ -612,10 +611,6 @@ class KeycloakAdmin:
             return self.__fetch_paginated(url, query)
 
         return self.__fetch_all(url, query)
-=======
-        params_path = {"realm-name": self.user_realm_name}
-        return self.__fetch_all(URL_ADMIN_GROUPS.format(**params_path))
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
 
     def get_group(self, group_id):
         """
@@ -666,7 +661,6 @@ class KeycloakAdmin:
         :param query: Additional query parameters (see https://www.keycloak.org/docs-api/8.0/rest-api/index.html#_getmembers)
         :return: Keycloak server response (UserRepresentation)
         """
-<<<<<<< HEAD
         params_path = {"realm-name": self.realm_name, "id": group_id}
         url = URL_ADMIN_USERS.format(**params_path)
 
@@ -674,10 +668,6 @@ class KeycloakAdmin:
             return self.__fetch_paginated(url, query)
 
         return self.__fetch_all(url, query)
-=======
-        params_path = {"realm-name": self.user_realm_name, "id": group_id}
-        return self.__fetch_all(URL_ADMIN_GROUP_MEMBERS.format(**params_path), query)
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
 
     def get_group_by_path(self, path, search_in_subgroups=False):
         """
@@ -916,13 +906,8 @@ class KeycloakAdmin:
         """
         params_path = {"realm-name": self.user_realm_name, "id": client_id}
         data_raw = self.raw_put(URL_ADMIN_CLIENT.format(**params_path),
-<<<<<<< HEAD
                                            data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[204])
-=======
-                                data=json.dumps(payload))
-        return raise_error_from_response(data_raw, KeycloakGetError, expected_code=204)
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
 
     def delete_client(self, client_id):
         """
@@ -1063,13 +1048,8 @@ class KeycloakAdmin:
 
         params_path = {"realm-name": self.user_realm_name}
         data_raw = self.raw_post(URL_ADMIN_REALM_ROLES.format(**params_path),
-<<<<<<< HEAD
                                             data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[201], skip_exists=skip_exists)
-=======
-                                 data=json.dumps(payload))
-        return raise_error_from_response(data_raw, KeycloakGetError, expected_code=201, skip_exists=skip_exists)
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
 
     def update_realm_role(self, role_name, payload):
         """
@@ -1081,13 +1061,8 @@ class KeycloakAdmin:
 
         params_path = {"realm-name": self.user_realm_name, "role-name": role_name}
         data_raw = self.connection.raw_put(URL_ADMIN_REALM_ROLES_ROLE_BY_NAME.format(**params_path),
-<<<<<<< HEAD
                                             data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[204])
-=======
-                                           data=json.dumps(payload))
-        return raise_error_from_response(data_raw, KeycloakGetError, expected_code=204)
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
 
     def delete_realm_role(self, role_name):
         """
@@ -1144,13 +1119,8 @@ class KeycloakAdmin:
         payload = roles if isinstance(roles, list) else [roles]
         params_path = {"realm-name": self.user_realm_name, "id": group_id}
         data_raw = self.raw_delete(URL_ADMIN_GROUPS_REALM_ROLES.format(**params_path),
-<<<<<<< HEAD
                                  data=json.dumps(payload))
         return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[204])
-=======
-                                   data=json.dumps(payload))
-        return raise_error_from_response(data_raw, KeycloakGetError, expected_code=204)
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
 
     def get_group_realm_roles(self, group_id):
         """
@@ -1569,11 +1539,7 @@ class KeycloakAdmin:
         grant_type = ["password"]
         if self.client_secret_key:
             grant_type = ["client_credentials"]
-<<<<<<< HEAD
 
-=======
-
->>>>>>> 16a38429bb20dd55776107c510cde9e8e9a31580
         self.token = self.keycloak_openid.token(self.username, self.password, grant_type=grant_type)
 
         headers = {
