@@ -1539,10 +1539,10 @@ class KeycloakAdmin:
         if self.client_secret_key:
             grant_type = ["client_credentials"]
             
-        self._token = self.keycloak_openid.token(self.username, self.password, grant_type=grant_type)
+        self.token = self.keycloak_openid.token(self.username, self.password, grant_type=grant_type)
 
         headers = {
-            'Authorization': 'Bearer ' + self.token.get('access_token'),
+            'Authorization': 'Bearer ' + self._token.get('access_token'),
             'Content-Type': 'application/json'
         }
         
@@ -1560,8 +1560,8 @@ class KeycloakAdmin:
         try:
             self.token = self.keycloak_openid.refresh_token(refresh_token)
         except KeycloakGetError as e:
-            if e.response_code == 400 and (b'Refresh token expired' in e.response_body or
-                                           b'Token is not active' in e.response_body):
+            if e.response_code == 400:
+                self.keycloak_openid.logout(refresh_token)
                 self.get_token()
             else:
                 raise
