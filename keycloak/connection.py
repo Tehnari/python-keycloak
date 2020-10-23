@@ -30,6 +30,7 @@ import requests
 from requests.adapters import HTTPAdapter
 
 from .exceptions import (KeycloakConnectionError)
+from typing import Any, AnyStr, Callable, Dict, Generic, List, Mapping, NamedTuple, Optional, Sequence, Tuple, Union, overload
 
 
 class ConnectionManager(object):
@@ -137,7 +138,7 @@ class ConnectionManager(object):
         """
         self.headers.pop(key, None)
 
-    def raw_get(self, path, **kwargs):
+    def raw_get(self, path, is_full_url = False, **kwargs):
         """ Submit get request to the path.
         :arg
             path (str): Path for request.
@@ -146,9 +147,8 @@ class ConnectionManager(object):
         :exception
             HttpError: Can't connect to server.
         """
-
         try:
-            return self._s.get(urljoin(self.base_url, path),
+            return self._s.get(self.urljoin(self.base_url, path, is_full_url=is_full_url),
                                params=kwargs,
                                headers=self.headers,
                                timeout=self.timeout,
@@ -157,7 +157,7 @@ class ConnectionManager(object):
             raise KeycloakConnectionError(
                 "Can't connect to server (%s)" % e)
 
-    def raw_post(self, path, data, **kwargs):
+    def raw_post(self, path, data, is_full_url = False, **kwargs):
         """ Submit post request to the path.
         :arg
             path (str): Path for request.
@@ -168,7 +168,7 @@ class ConnectionManager(object):
             HttpError: Can't connect to server.
         """
         try:
-            return self._s.post(urljoin(self.base_url, path),
+            return self._s.post(self.urljoin(self.base_url, path, is_full_url=is_full_url),
                                 params=kwargs,
                                 data=data,
                                 headers=self.headers,
@@ -178,7 +178,7 @@ class ConnectionManager(object):
             raise KeycloakConnectionError(
                 "Can't connect to server (%s)" % e)
 
-    def raw_put(self, path, data, **kwargs):
+    def raw_put(self, path, data, is_full_url = False, **kwargs):
         """ Submit put request to the path.
         :arg
             path (str): Path for request.
@@ -189,7 +189,7 @@ class ConnectionManager(object):
             HttpError: Can't connect to server.
         """
         try:
-            return self._s.put(urljoin(self.base_url, path),
+            return self._s.put(self.urljoin(self.base_url, path, is_full_url=is_full_url),
                                params=kwargs,
                                data=data,
                                headers=self.headers,
@@ -199,7 +199,7 @@ class ConnectionManager(object):
             raise KeycloakConnectionError(
                 "Can't connect to server (%s)" % e)
 
-    def raw_delete(self, path, data={}, **kwargs):
+    def raw_delete(self, path, data={}, is_full_url = False, **kwargs):
         """ Submit delete request to the path.
 
         :arg
@@ -211,7 +211,7 @@ class ConnectionManager(object):
             HttpError: Can't connect to server.
         """
         try:
-            return self._s.delete(urljoin(self.base_url, path),
+            return self._s.delete(self.urljoin(self.base_url, path, is_full_url=is_full_url),
                                   params=kwargs,
                                   data=data,
                                   headers=self.headers,
@@ -220,3 +220,11 @@ class ConnectionManager(object):
         except Exception as e:
             raise KeycloakConnectionError(
                 "Can't connect to server (%s)" % e)
+
+    def urljoin(self, base: str, url: Optional[str], allow_fragments: bool = True, is_full_url = False):
+        if is_full_url:
+            return url
+        base = base + "/" if type(base) is str and bool(base) and not str(base).endswith('/') else base
+        url = url[1:] if type(url) is str and bool(url) and str(url).startswith('/') else url
+        result = base + url
+        return result
